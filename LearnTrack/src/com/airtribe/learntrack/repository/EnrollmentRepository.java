@@ -11,45 +11,46 @@ import java.util.stream.Collectors;
 public class EnrollmentRepository {
     private final List<Enrollment> enrollments = new ArrayList<>();
 
-    public void addEnrollment(Enrollment enrollment) {
+    public Enrollment save(Enrollment enrollment) {
         enrollments.add(enrollment);
+        return enrollment;
     }
 
-    public Enrollment getEnrollmentById(int id) {
+    public Optional<Enrollment> findById(int id) {
+        return enrollments.stream()
+                .filter(e -> e.getId() == id)
+                .findFirst();
+    }
+
+    public Enrollment getById(int id) {
         return findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Enrollment not found: " + id));
     }
 
-    public Enrollment updateEnrollmentStatus(int id, Enrollment.Status status) {
-        Enrollment enrollment = getEnrollmentById(id);
+    public List<Enrollment> findAll() {
+        return List.copyOf(enrollments); // immutable defensive copy
+    }
+
+    public void deleteById(int id) {
+        Enrollment enrollment = getById(id);
+        enrollments.remove(enrollment);
+    }
+
+    public Enrollment updateStatus(int id, Enrollment.Status status) {
+        Enrollment enrollment = getById(id);
         enrollment.setStatus(status);
         return enrollment;
     }
 
-    public void deleteEnrollment(int id) {
-        Enrollment enrollment = getEnrollmentById(id);
-        enrollments.remove(enrollment);
-    }
-
-    public List<Enrollment> getAllEnrollments() {
-        return new ArrayList<>(enrollments); // defensive copy
-    }
-
-    public List<Enrollment> getEnrollmentsByStudentId(int studentId) {
+    public List<Enrollment> findByStudentId(int studentId) {
         return enrollments.stream()
                 .filter(e -> e.getStudent().getId() == studentId)
-                .collect(Collectors.toList());
+                .collect(Collectors.toUnmodifiableList());
     }
 
-    public List<Enrollment> getEnrollmentsByCourseId(int courseId) {
+    public List<Enrollment> findByCourseId(int courseId) {
         return enrollments.stream()
                 .filter(e -> e.getCourse().getId() == courseId)
-                .collect(Collectors.toList());
-    }
-
-    private Optional<Enrollment> findById(int id) {
-        return enrollments.stream()
-                .filter(e -> e.getId() == id)
-                .findFirst();
+                .collect(Collectors.toUnmodifiableList());
     }
 }

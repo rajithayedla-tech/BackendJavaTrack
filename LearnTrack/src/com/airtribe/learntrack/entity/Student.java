@@ -1,6 +1,5 @@
 package com.airtribe.learntrack.entity;
 
-import com.airtribe.learntrack.exception.InvalidInputException;
 import com.airtribe.learntrack.util.IdGenerator;
 
 public class Student extends Person {
@@ -9,18 +8,12 @@ public class Student extends Person {
 
     public Student(String firstName, String lastName, String email, String batch, boolean active) {
         super(IdGenerator.getNextStudentId(), firstName, lastName, email);
-        if (batch == null || batch.isBlank()) {
-            throw new InvalidInputException("Batch cannot be null or blank.");
-        }
         this.batch = batch;
         this.active = active;
     }
 
     public Student(String firstName, String lastName, String batch, boolean active) {
         super(IdGenerator.getNextStudentId(), firstName, lastName, null);
-        if (batch == null || batch.isBlank()) {
-            throw new InvalidInputException("Batch cannot be null or blank.");
-        }
         this.batch = batch;
         this.active = active;
     }
