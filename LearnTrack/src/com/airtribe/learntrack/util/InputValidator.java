@@ -10,4 +10,8 @@ public final class InputValidator {
     public static boolean isPositive(int n) {
         return n > 0;
     }
+
+    public static boolean isValidEmail(String email) {
+        return email != null && email.contains("@") && email.contains(".");
+    }
 }
