@@ -10,46 +10,35 @@ import java.util.Optional;
 public class CourseRepository {
     private final List<Course> courses = new ArrayList<>();
 
-    public void addCourse(Course course) {
+    public Course save(Course course) {
         courses.add(course);
+        return course;
     }
 
-    public Course getCourseById(int id) {
+    public Optional<Course> findById(int id) {
+        return courses.stream()
+                .filter(c -> c.getId() == id)
+                .findFirst();
+    }
+
+    public Course getById(int id) {
         return findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Course not found: " + id));
     }
 
-    public Course updateCourse(int id, String name, String description, Integer durationInWeeks, Boolean active) {
-        Course course = getCourseById(id);
-
-        if (name != null && !name.isBlank()) {
-            course.setCourseName(name);
-        }
-        if (description != null && !description.isBlank()) {
-            course.setDescription(description);
-        }
-        if (durationInWeeks != null && durationInWeeks > 0) {
-            course.setDurationInWeeks(durationInWeeks);
-        }
-        if (active != null) {
-            course.setActive(active);
-        }
-
-        return course;
+    public List<Course> findAll() {
+        return List.copyOf(courses); // immutable defensive copy
     }
 
-    public void deleteCourse(int id) {
-        Course course = getCourseById(id);
+    public void deleteById(int id) {
+        Course course = getById(id);
         courses.remove(course);
     }
 
-    public List<Course> getAllCourses() {
-        return new ArrayList<>(courses); // defensive copy
-    }
-
-    private Optional<Course> findById(int id) {
-        return courses.stream()
-                .filter(c -> c.getId() == id)
-                .findFirst();
+    public Course update(Course updatedCourse) {
+        Course existing = getById(updatedCourse.getId());
+        int index = courses.indexOf(existing);
+        courses.set(index, updatedCourse);
+        return updatedCourse;
     }
 }

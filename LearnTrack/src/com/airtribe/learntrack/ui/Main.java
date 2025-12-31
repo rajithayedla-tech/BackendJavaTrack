@@ -5,6 +5,8 @@ import com.airtribe.learntrack.entity.Student;
 import com.airtribe.learntrack.entity.Course;
 import com.airtribe.learntrack.exception.EntityNotFoundException;
 import com.airtribe.learntrack.exception.InvalidInputException;
+import com.airtribe.learntrack.repository.CourseRepository;
+import com.airtribe.learntrack.repository.StudentRepository;
 import com.airtribe.learntrack.service.CourseService;
 import com.airtribe.learntrack.service.EnrollmentService;
 import com.airtribe.learntrack.service.StudentService;
@@ -18,8 +20,13 @@ public class Main {
     private static final Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
-        StudentService studentService = new StudentService();
-        CourseService courseService = new CourseService();
+        // Initialize repositories first
+        StudentRepository studentRepository = new StudentRepository();
+        CourseRepository courseRepository = new CourseRepository();
+
+        // Pass repositories into services
+        StudentService studentService = new StudentService(studentRepository);
+        CourseService courseService = new CourseService(courseRepository);
         EnrollmentService enrollmentService = new EnrollmentService(studentService, courseService);
 
         while (true) {

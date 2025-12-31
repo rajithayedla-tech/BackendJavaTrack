@@ -1,66 +1,84 @@
 package com.airtribe.learntrack.service;
 
 import com.airtribe.learntrack.entity.Student;
-import com.airtribe.learntrack.exception.EntityNotFoundException;
+import com.airtribe.learntrack.repository.StudentRepository;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 public class StudentService {
+    private final StudentRepository studentRepository;
 
-    private final List<Student> students = new ArrayList<Student>();
+    public StudentService(StudentRepository studentRepository) {
+        this.studentRepository = studentRepository;
+    }
 
     public Student addStudent(String firstName, String lastName, String email, String batch) {
-        Student s = new Student(firstName, lastName, email, batch, true);
-        students.add(s);
-        return s;
+        validateName(firstName, lastName);
+        validateBatch(batch);
+
+        Student student = new Student(firstName, lastName, email, batch, true);
+        return studentRepository.save(student);
     }
 
     public Student addStudent(String firstName, String lastName, String batch) {
-        Student s = new Student(firstName, lastName, batch, true);
-        students.add(s);
-        return s;
+        validateName(firstName, lastName);
+        validateBatch(batch);
+
+        Student student = new Student(firstName, lastName, batch, true);
+        return studentRepository.save(student);
     }
 
-    public boolean removeStudent(int id){
-        Iterator<Student> iterator = students.iterator();
-        while (iterator.hasNext()) {
-            Student s = iterator.next();
-            if (s.getId() == id) {
-                iterator.remove();
-                return true;
-            }
-        }
-        return false;
+    public void removeStudent(int id) {
+        studentRepository.deleteById(id);
     }
 
     public void deactivateStudent(int id) {
-        Student s = findById(id);
-        s.setActive(false);
+        Student student = studentRepository.getById(id);
+        student.setActive(false);
     }
 
-    public void updateStudent(int id, String firstName, String lastName, String email, String batch, boolean active) {
-        Student student = findById(id);
-        student.setFirstName(firstName); student.setLastName(lastName); student.setEmail(email); student.setBatch(batch); student.setActive(active);
-    }
+    public Student updateStudent(int id, String firstName, String lastName, String email, String batch, Boolean active) {
+        Student student = studentRepository.getById(id);
 
-    public void updateStudent(int id, String firstName, String lastName, String batch, boolean active) {
-        Student student = findById(id);
-        student.setFirstName(firstName); student.setLastName(lastName); student.setBatch(batch); student.setActive(active);
-    }
-
-    public Student findById(int id){
-        for (Student student : students) {
-            if (student.getId() == id) {
-                return student;
-            }
+        if (firstName != null && !firstName.isBlank()) {
+            student.setFirstName(firstName);
         }
-        throw new EntityNotFoundException("Student with id " + id + " not found");
+        if (lastName != null && !lastName.isBlank()) {
+            student.setLastName(lastName);
+        }
+        if (email != null && !email.isBlank()) {
+            student.setEmail(email);
+        }
+        if (batch != null && !batch.isBlank()) {
+            student.setBatch(batch);
+        }
+        if (active != null) {
+            student.setActive(active);
+        }
+
+        return student;
+    }
+
+    public Student findById(int id) {
+        return studentRepository.getById(id);
     }
 
     public List<Student> listStudents() {
-        return Collections.unmodifiableList(students);
+        return studentRepository.findAll();
+    }
+
+    private void validateName(String firstName, String lastName) {
+        if (firstName == null || firstName.isBlank()) {
+            throw new IllegalArgumentException("First name cannot be blank");
+        }
+        if (lastName == null || lastName.isBlank()) {
+            throw new IllegalArgumentException("Last name cannot be blank");
+        }
+    }
+
+    private void validateBatch(String batch) {
+        if (batch == null || batch.isBlank()) {
+            throw new IllegalArgumentException("Batch cannot be blank");
+        }
     }
 }

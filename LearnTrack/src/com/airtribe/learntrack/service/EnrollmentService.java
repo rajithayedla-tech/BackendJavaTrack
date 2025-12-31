@@ -1,56 +1,64 @@
 package com.airtribe.learntrack.service;
 
+import com.airtribe.learntrack.entity.Course;
 import com.airtribe.learntrack.entity.Enrollment;
-import com.airtribe.learntrack.entity.Enrollment.Status;
-import com.airtribe.learntrack.exception.EntityNotFoundException;
+import com.airtribe.learntrack.entity.Student;
+import com.airtribe.learntrack.repository.EnrollmentRepository;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class EnrollmentService {
-    private final List<Enrollment> enrollments = new ArrayList<Enrollment>();
+    private final EnrollmentRepository enrollmentRepository;
     private final StudentService studentService;
     private final CourseService courseService;
 
     public EnrollmentService(StudentService studentService, CourseService courseService) {
+        this.enrollmentRepository = new EnrollmentRepository();
         this.studentService = studentService;
         this.courseService = courseService;
     }
 
     public Enrollment enroll(int studentId, int courseId) {
-        Enrollment e = new Enrollment(studentService.findById(studentId), courseService.findById(courseId), new Date(), Status.ACTIVE);
-        enrollments.add(e);
-        return e;
-    }
+        Student student = studentService.findById(studentId);
+        Course course = courseService.findById(courseId);
 
-    // View enrollments for a student
-    public List<Enrollment> findByStudent(int studentId) {
-        List<Enrollment> result = new ArrayList<>();
-        for (Enrollment e : enrollments) {
-            if (e.getStudent().getId() == studentId) {
-                result.add(e);
-            }
+        if (!student.isActive()) {
+            throw new IllegalStateException("Cannot enroll inactive student: " + studentId);
         }
-        return result;
+        if (!course.isActive()) {
+            throw new IllegalStateException("Cannot enroll in inactive course: " + courseId);
+        }
+
+        Enrollment enrollment = new Enrollment(student, course, new Date(), Enrollment.Status.ACTIVE);
+        return enrollmentRepository.save(enrollment);
     }
 
     public Enrollment findById(int id) {
-        for (Enrollment enrollment : enrollments) {
-            if (enrollment.getId() == id) {
-                return enrollment;
-            }
-        }
-        throw new EntityNotFoundException("Enrollment with id " + id + " not found");
+        return enrollmentRepository.getById(id);
     }
 
-    public void markCompleted(int enrollmentId) {
-        Enrollment e = findById(enrollmentId);
-        e.setStatus(Status.COMPLETED);
+    public List<Enrollment> listAll() {
+        return enrollmentRepository.findAll();
     }
 
-    public void markCancelled(int enrollmentId) {
-        Enrollment e = findById(enrollmentId);
-        e.setStatus(Status.CANCELLED);
+    public List<Enrollment> findByStudent(int studentId) {
+        return enrollmentRepository.findByStudentId(studentId);
+    }
+
+    public List<Enrollment> findByCourse(int courseId) {
+        return enrollmentRepository.findByCourseId(courseId);
+    }
+
+    public void markCompleted(int id) {
+        enrollmentRepository.updateStatus(id, Enrollment.Status.COMPLETED);
+    }
+
+    public void markCancelled(int id) {
+        enrollmentRepository.updateStatus(id, Enrollment.Status.CANCELLED);
+    }
+
+    public void deleteEnrollment(int id) {
+        enrollmentRepository.deleteById(id);
     }
 }
