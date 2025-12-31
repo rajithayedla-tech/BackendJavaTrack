@@ -2,10 +2,10 @@ package com.airtribe.learntrack.service;
 
 import com.airtribe.learntrack.entity.Enrollment;
 import com.airtribe.learntrack.entity.Enrollment.Status;
+import com.airtribe.learntrack.exception.EntityNotFoundException;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 public class EnrollmentService {
@@ -35,16 +35,13 @@ public class EnrollmentService {
         return result;
     }
 
-    public Enrollment findById(int id){
-        Iterator<Enrollment> iterator = enrollments.iterator();
-        Enrollment enrollment = null;
-        while (iterator.hasNext()) {
-            enrollment = iterator.next();
+    public Enrollment findById(int id) {
+        for (Enrollment enrollment : enrollments) {
             if (enrollment.getId() == id) {
-                break;
+                return enrollment;
             }
         }
-        return enrollment;
+        throw new EntityNotFoundException("Enrollment with id " + id + " not found");
     }
 
     public void markCompleted(int enrollmentId) {

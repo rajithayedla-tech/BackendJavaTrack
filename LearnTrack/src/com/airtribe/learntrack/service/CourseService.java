@@ -1,9 +1,10 @@
 package com.airtribe.learntrack.service;
 
 import com.airtribe.learntrack.entity.Course;
+import com.airtribe.learntrack.exception.EntityNotFoundException;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.List;
 
 public class CourseService {
@@ -14,28 +15,22 @@ public class CourseService {
         return course;
     }
 
-    public Course findById(int id){
-        Iterator<Course> iterator = courses.iterator();
-        Course course = null;
-        while (iterator.hasNext()) {
-            course = iterator.next();
+    public Course findById(int id) {
+        for (Course course : courses) {
             if (course.getId() == id) {
-                break;
+                return course;
             }
         }
-        return course;
+        throw new EntityNotFoundException("Course with id " + id + " not found");
     }
 
+
     public List<Course> listCourses() {
-        return courses;
+        return Collections.unmodifiableList(courses);
     }
 
     public void setCourseStatus(int id, boolean active){
-        for (Course course : courses) {
-            if (course.getId() == id) {
-                course.setActive(active);
-                break;
-            }
-        }
+        Course course = findById(id);
+        course.setActive(active);
     }
 }

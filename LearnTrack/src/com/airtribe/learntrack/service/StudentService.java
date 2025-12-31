@@ -1,9 +1,10 @@
 package com.airtribe.learntrack.service;
 
 import com.airtribe.learntrack.entity.Student;
-import com.airtribe.learntrack.util.IdGenerator;
+import com.airtribe.learntrack.exception.EntityNotFoundException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -12,13 +13,11 @@ public class StudentService {
     private final List<Student> students = new ArrayList<Student>();
 
     public Student addStudent(String firstName, String lastName, String email, String batch) {
-        int id = IdGenerator.getNextStudentId();
         Student s = new Student(firstName, lastName, email, batch, true);
         students.add(s);
         return s;
     }
 
-    // Overloaded add: without email (constructor overloading in Student)
     public Student addStudent(String firstName, String lastName, String batch) {
         Student s = new Student(firstName, lastName, batch, true);
         students.add(s);
@@ -42,44 +41,26 @@ public class StudentService {
         s.setActive(false);
     }
 
-    public boolean updateStudent(int id, String firstName, String lastName, String email, String batch, boolean active) {
-        for (Student s : students) {
-            if (s.getId() == id) {
-                s.setFirstName(firstName); s.setLastName(lastName);
-                s.setEmail(email);
-                s.setBatch(batch);
-                s.setActive(active);
-                return true;
-            }
-        }
-        return false;
+    public void updateStudent(int id, String firstName, String lastName, String email, String batch, boolean active) {
+        Student student = findById(id);
+        student.setFirstName(firstName); student.setLastName(lastName); student.setEmail(email); student.setBatch(batch); student.setActive(active);
     }
 
-    public boolean updateStudent(int id, String firstName, String lastName, String batch, boolean active) {
-        for (Student s : students) {
-            if (s.getId() == id) {
-                s.setFirstName(firstName); s.setLastName(lastName);
-                s.setBatch(batch);
-                s.setActive(active);
-                return true;
-            }
-        }
-        return false;
+    public void updateStudent(int id, String firstName, String lastName, String batch, boolean active) {
+        Student student = findById(id);
+        student.setFirstName(firstName); student.setLastName(lastName); student.setBatch(batch); student.setActive(active);
     }
 
     public Student findById(int id){
-        Iterator<Student> iterator = students.iterator();
-        Student student = null;
-        while (iterator.hasNext()) {
-            student = iterator.next();
+        for (Student student : students) {
             if (student.getId() == id) {
-                break;
+                return student;
             }
         }
-        return student;
+        throw new EntityNotFoundException("Student with id " + id + " not found");
     }
 
     public List<Student> listStudents() {
-        return students;
+        return Collections.unmodifiableList(students);
     }
 }

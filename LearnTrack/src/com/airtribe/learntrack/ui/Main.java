@@ -22,7 +22,6 @@ public class Main {
         CourseService courseService = new CourseService();
         EnrollmentService enrollmentService = new EnrollmentService(studentService, courseService);
 
-        boolean running = true;
         while (true) {
             printMainMenu();
             String choice = scanner.nextLine();
@@ -34,7 +33,6 @@ public class Main {
                     case "3" -> enrollmentMenu(enrollmentService);
                     case "0" -> {
                         System.out.println("Exiting. Goodbye!");
-                        running = false;
                     }
                     default -> System.out.println("Invalid option. Please try again.");
                 }
@@ -231,7 +229,7 @@ public class Main {
         try {
             return Integer.parseInt(input.trim());
         } catch (NumberFormatException e) {
-            throw new InvalidInputException("Please enter a valid number.");
+            throw new InvalidInputException("Invalid input: \"" + input + "\". Please enter a valid integer.");
         }
     }
 }

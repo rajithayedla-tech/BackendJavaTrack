@@ -1,5 +1,8 @@
 package com.airtribe.learntrack.entity;
 
+import com.airtribe.learntrack.exception.InvalidInputException;
+import com.airtribe.learntrack.util.InputValidator;
+
 public class Person {
     private int id;
     private String firstName;
@@ -7,6 +10,13 @@ public class Person {
     private String email;
 
     public Person(int id, String firstName, String lastName, String email) {
+        if (firstName == null || firstName.isBlank()) {
+            throw new InvalidInputException("First name cannot be null or blank.");
+        } if (lastName == null || lastName.isBlank()) {
+            throw new InvalidInputException("Last name cannot be null or blank.");
+        } if (email != null && !InputValidator.isValidEmail(email)) {
+            throw new InvalidInputException("Invalid email format: " + email);
+        }
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -42,10 +52,33 @@ public class Person {
     }
 
     public void setEmail(String email) {
-        this.email = email;
+        if (email == null || email.isBlank()) {
+            this.email = "(no email)";
+        }
+        else if (!InputValidator.isValidEmail(email)) {
+            throw new InvalidInputException("Invalid email format: " + email);
+        } else {
+            this.email = email;
+        }
     }
 
     public String getDisplayName() {
-        return firstName + " " + lastName;
+        StringBuilder sb = new StringBuilder();
+
+        if (firstName != null && !firstName.isBlank()) {
+            sb.append(firstName);
+        }
+        if (lastName != null && !lastName.isBlank()) {
+            if (sb.length() > 0) {
+                sb.append(" ");
+            }
+            sb.append(lastName);
+        }
+
+        if (sb.length() == 0) {
+            return "(No Name)";
+        }
+        return sb.toString();
     }
+
 }
