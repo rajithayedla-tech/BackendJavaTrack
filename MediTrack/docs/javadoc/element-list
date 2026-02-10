@@ -1,0 +1,10 @@
+com.airtribe.meditrack
+com.airtribe.meditrack.constants
+com.airtribe.meditrack.entity
+com.airtribe.meditrack.entity.enums
+com.airtribe.meditrack.exception
+com.airtribe.meditrack.factory
+com.airtribe.meditrack.Interface
+com.airtribe.meditrack.service
+com.airtribe.meditrack.strategy
+com.airtribe.meditrack.util
