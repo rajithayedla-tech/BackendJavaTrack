@@ -2,16 +2,24 @@ package com.airtribe.meditrack.entity;
 
 import com.airtribe.meditrack.entity.enums.AppointmentStatus;
 
+import java.util.Date;
+
 public class Appointment implements Cloneable{
+    private String id;
     private Patient patient;
     private Doctor doctor;
     private AppointmentStatus status;
+    private Date date;
 
-    public Appointment(Patient patient, Doctor doctor) {
-        this.patient = patient.clone();   // deep copy
+    public Appointment(String id, Doctor doctor, Patient patient, Date date) {
+        this.id = id;
         this.doctor = doctor;
-        this.status = AppointmentStatus.CONFIRMED;
+        this.patient = patient;
+        this.date = date;
+        this.status = AppointmentStatus.PENDING;
     }
+
+    public String getId() { return id; }
 
     public Patient getPatient() {
         return patient;
@@ -24,6 +32,8 @@ public class Appointment implements Cloneable{
     public AppointmentStatus getStatus() {
         return status;
     }
+
+    public Date getDate() { return date; }
 
     public void cancel() {
         this.status = AppointmentStatus.CANCELLED;
@@ -44,5 +54,9 @@ public class Appointment implements Cloneable{
         return "Patient: " + patient.getName()
                 + " | Doctor: " + doctor.getName()
                 + " | Status: " + status;
+    }
+
+    public void setStatus(AppointmentStatus appointmentStatus) {
+        this.status = appointmentStatus;
     }
 }

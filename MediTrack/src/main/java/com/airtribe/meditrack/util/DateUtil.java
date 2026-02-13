@@ -1,10 +1,13 @@
 package com.airtribe.meditrack.util;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Date;
 
 public final class DateUtil {
 
@@ -15,6 +18,8 @@ public final class DateUtil {
     public static final DateTimeFormatter DATE_TIME_FORMAT =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
     private DateUtil() {
         // utility class
     }
@@ -23,9 +28,7 @@ public final class DateUtil {
        Parsing & Formatting
        ========================= */
 
-    public static LocalDate parseDate(String date) {
-        return LocalDate.parse(date, DATE_FORMAT);
-    }
+    public static Date parseDate(String dateStr) { try { return sdf.parse(dateStr); } catch (ParseException e) { throw new RuntimeException("Invalid date format. Use yyyy-MM-dd", e); } }
 
     public static LocalDateTime parseDateTime(String dateTime) {
         return LocalDateTime.parse(dateTime, DATE_TIME_FORMAT);

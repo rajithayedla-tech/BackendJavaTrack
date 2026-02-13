@@ -7,12 +7,14 @@ import com.airtribe.meditrack.entity.enums.AppointmentStatus;
 import com.airtribe.meditrack.exception.AppointmentNotFoundException;
 import com.airtribe.meditrack.util.DataStore;
 
+import java.util.Date;
+
 public class AppointmentService {
     private final DataStore<Appointment> store = new DataStore<>();
 
     // CREATE
-    public void createAppointment(Patient patient, Doctor doctor) {
-        store.add(new Appointment(patient, doctor));
+    public void createAppointment(String id, Doctor doctor, Patient patient, Date date) {
+        store.add(new Appointment(id, doctor, patient, date));
     }
 
     // READ

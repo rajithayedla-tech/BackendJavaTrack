@@ -22,6 +22,17 @@ public class Doctor extends Person {
     }
 
     @Override
+    public String toString() {
+        return "Doctor{" +
+                "specialization=" + specialization.name() +
+                ", consultationFee=" + consultationFee +
+                ", id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", age=" + age +
+                '}';
+    }
+
+    @Override
     public String getSummary() {
         return "Doctor: " + name + " | " + specialization + " | Fee: " + consultationFee;
     }
