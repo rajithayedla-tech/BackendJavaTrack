@@ -8,6 +8,8 @@ import com.airtribe.meditrack.service.DoctorService;
 import com.airtribe.meditrack.service.PatientService;
 import com.airtribe.meditrack.util.IdGenerator;
 
+import java.util.Date;
+
 public class TestRunner {
     public static void main(String[] args) {
 
@@ -53,9 +55,9 @@ public class TestRunner {
         // APPOINTMENT TEST
         // =====================
         AppointmentService appointmentService = new AppointmentService();
-        Appointment appointment = new Appointment(patient, doctor);
+        Appointment appointment = new Appointment("A1", doctor, patient, new Date());
 
-        appointmentService.createAppointment(patient, doctor);
+        appointmentService.createAppointment("A1", doctor, patient, new Date());
 
         System.out.println("\n[APPOINTMENT TEST]");
         appointmentService.viewAppointments();
@@ -72,13 +74,9 @@ public class TestRunner {
 
         System.out.println("\n[BILLING TEST]");
         bill.printReceipt(totalAmount);
+        BillSummary summary = new BillSummary(patient.getId(), doctor.getId(), totalAmount, 200.00);
 
-        BillSummary summary = new BillSummary(
-                doctor.getName(),
-                totalAmount
-        );
-
-        System.out.println("Doctor: " + summary.getDoctorName());
+        System.out.println("Doctor: " + summary.getDoctorId());
         System.out.println("Final Amount: ₹" + summary.getTotalAmount());
 
         System.out.println("\n===== ALL TESTS COMPLETED SUCCESSFULLY =====");

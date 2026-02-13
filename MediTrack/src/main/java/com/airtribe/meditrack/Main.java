@@ -39,7 +39,12 @@ public class Main {
                         case 6 -> searchDoctor();
                         case 7 -> createAppointment();
                         case 8 -> viewAppointments();
-                        case 9 -> generateBill();
+                        case 9 -> cancelAppointment();
+                        case 10 -> generateBill();
+                        case 11 -> clonePatientOrAppointment();
+                        case 12 -> immutableBillSummary();
+                        case 13 -> saveDataToCSV();
+                        case 14 -> loadDataFromCSV();
                         case 0 -> exitApp();
                         default -> System.out.println("Invalid option. Try again.");
                     }
@@ -61,7 +66,12 @@ public class Main {
                 6. Search Doctor (by Name/Specialization)"
                 7. Create Appointment
                 8. View Appointments
-                9. Generate Bill
+                9. Cancel Appointment
+                10. Generate Bill
+                11. Clone Patient/Appointment
+                12. Immutable Bill Summary
+                13. Save Data to CSV
+                14. Load Data from CSV
                 0. Exit
                 """);
         }
@@ -229,6 +239,12 @@ public class Main {
             appointmentService.viewAppointments();
         }
 
+        private static void cancelAppointment() {
+            System.out.print("Enter Appointment ID to cancel: ");
+            String cancelId = scanner.nextLine();
+            appointmentService.cancelAppointment(cancelId);
+        }
+
         // ---------------- BILLING ----------------
         private static void generateBill() {
 
@@ -245,6 +261,94 @@ public class Main {
             double total = bill.calculateTotal();
 
             bill.printReceipt(total);
+        }
+
+        private static void clonePatientOrAppointment() {
+            System.out.println("Clone Options: 1. Patient 2. Appointment");
+            int cloneChoice = scanner.nextInt();
+            scanner.nextLine();
+            switch (cloneChoice) {
+                case 1:
+                    System.out.print("Enter Patient ID to clone: ");
+                    String clonePid = scanner.nextLine();
+                    Patient originalPatient = patientService.searchById(clonePid);
+                    if (originalPatient != null) {
+                        Patient clonedPatient = originalPatient.clone();
+                        System.out.println("Original: " + originalPatient);
+                        System.out.println("Cloned: " + clonedPatient);
+                    } else {
+                        System.out.println("Patient not found with ID: " + clonePid);
+                    }
+                    break;
+                case 2:
+                    System.out.print("Enter Appointment ID to clone: ");
+                    String cloneAid = scanner.nextLine();
+                    Appointment originalAppt = appointmentService.getAppointmentById(cloneAid);
+                    if (originalAppt != null) {
+                        Appointment clonedAppt = originalAppt.clone();
+                        System.out.println("Original: " + originalAppt);
+                        System.out.println("Cloned: " + clonedAppt);
+                    } else {
+                        System.out.println("Appointment not found with ID: " + cloneAid);
+                    }
+                    break;
+                default:
+                    System.out.println("Invalid clone option.");
+            }
+        }
+
+        private static void immutableBillSummary() {
+            System.out.print("Enter Patient ID: ");
+            String billPid = scanner.nextLine();
+            System.out.print("Enter Doctor ID: ");
+            String billDid = scanner.nextLine();
+            System.out.print("Enter Consultation Fee: ");
+            double consultFee = scanner.nextDouble();
+            scanner.nextLine();
+            System.out.print("Enter Medicine Charges: ");
+            double medCharges = scanner.nextDouble();
+            scanner.nextLine();
+            BillSummary bill = new BillSummary(billPid, billDid, consultFee, medCharges);
+            System.out.println("Immutable Bill Summary created:");
+            System.out.println(bill);
+        }
+
+        private static void saveDataToCSV() {
+            System.out.println("Save Options: 1. Patients 2. Doctors 3. Appointments");
+            int saveChoice = scanner.nextInt();
+            scanner.nextLine();
+            switch (saveChoice) {
+                case 1:
+                    patientService.savePatientsToCSV("patients.csv");
+                    break;
+                case 2:
+                    doctorService.saveDoctorsToCSV("doctors.csv");
+                    break;
+                case 3:
+                    appointmentService.saveAppointmentsToCSV("appointments.csv");
+                    break;
+                default:
+                    System.out.println("Invalid save option.");
+            }
+        }
+
+        private static void loadDataFromCSV() {
+            System.out.println("Load Options: 1. Patients 2. Doctors 3. Appointments");
+            int loadChoice = scanner.nextInt();
+            scanner.nextLine();
+            switch (loadChoice) {
+                case 1:
+                    patientService.loadPatientsFromCSV("patients.csv");
+                    break;
+                case 2:
+                    doctorService.loadDoctorsFromCSV("doctors.csv");
+                    break;
+                case 3:
+                    appointmentService.loadAppointmentsFromCSV("appointments.csv", doctorService, patientService);
+                    break;
+                default:
+                    System.out.println("Invalid load option.");
+            }
         }
 
         // ---------------- HELPERS ----------------

@@ -5,14 +5,14 @@ import com.airtribe.meditrack.entity.Doctor;
 import com.airtribe.meditrack.entity.enums.Specialization;
 import com.airtribe.meditrack.util.DataStore;
 
+import java.io.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class DoctorService implements Searchable<Doctor> {
 
     private final DataStore<Doctor> store = new DataStore<>();
 
-    public void addDoctor(Doctor doctor){
+    public void addDoctor(Doctor doctor) {
         store.add(doctor);
     }
 
@@ -30,6 +30,7 @@ public class DoctorService implements Searchable<Doctor> {
         notFoundMessage();
         return null;
     }
+
     // SEARCH by Name (Overloading)
     public Doctor searchDoctor(String name) {
         for (Doctor d : store.getAll()) {
@@ -43,19 +44,7 @@ public class DoctorService implements Searchable<Doctor> {
 
     // SEARCH by Specialization (Overloading)
     public List<Doctor> searchDoctor(Specialization specialization) {
-        return store.getAll()
-                .stream()
-                .filter(d -> d.getSpecialization() == specialization)
-                .collect(Collectors.toList());
-    }
-
-
-    // STREAM: filter doctors by specialization
-    public List<Doctor> filterBySpecialization(Specialization specialization) {
-        return store.getAll()
-                .stream()
-                .filter(d -> d.getSpecialization() == specialization)
-                .collect(Collectors.toList());
+        return store.search(d -> d.getSpecialization() == specialization);
     }
 
     // STREAM: calculate average consultation fee
@@ -67,4 +56,36 @@ public class DoctorService implements Searchable<Doctor> {
                 .orElse(0.0);
     }
 
+    public void saveDoctorsToCSV(String filename) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(filename))) {
+            writer.println("ID,Name,Age,Specialization,Fee");
+            for (Doctor d : store.getAll()) {
+                writer.printf("%s,%s,%d,%s,%.2f%n", d.getId(), d.getName(), d.getAge(), d.getSpecialization(), d.getConsultationFee());
+            }
+            System.out.println("Doctors saved to " + filename);
+        } catch (IOException e) {
+            System.out.println("Error saving doctors to CSV: " + e.getMessage());
+        }
+    }
+
+    public void loadDoctorsFromCSV(String filename) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+            String line = reader.readLine(); // skip header
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length == 5) {
+                    String id = parts[0];
+                    String name = parts[1];
+                    int age = Integer.parseInt(parts[2]);
+                    Specialization spec = Specialization.valueOf(parts[3].toUpperCase());
+                    double fee = Double.parseDouble(parts[4]);
+                    store.add(new Doctor(id, name, age, spec, fee));
+                }
+            }
+            System.out.println("Doctors loaded from " + filename);
+            viewDoctors(); // <-- show all doctors after loading
+        } catch (IOException e) {
+            System.out.println("Error loading doctors from CSV: " + e.getMessage());
+        }
+    }
 }

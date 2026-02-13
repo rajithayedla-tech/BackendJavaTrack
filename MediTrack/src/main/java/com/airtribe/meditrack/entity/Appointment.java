@@ -39,6 +39,10 @@ public class Appointment implements Cloneable{
         this.status = AppointmentStatus.CANCELLED;
     }
 
+    public void confirm() {
+        this.status = AppointmentStatus.CONFIRMED;
+    }
+
     @Override
     public Appointment clone() {
         try {
