@@ -338,13 +338,13 @@ public class Main {
             scanner.nextLine();
             switch (loadChoice) {
                 case 1:
-                    patientService.loadPatientsFromCSV("src/resources/patients.csv");
+                    patientService.loadPatientsFromCSV("src/main/resources/patients.csv");
                     break;
                 case 2:
-                    doctorService.loadDoctorsFromCSV("src/resources/doctors.csv");
+                    doctorService.loadDoctorsFromCSV("src/main/resources/doctors.csv");
                     break;
                 case 3:
-                    appointmentService.loadAppointmentsFromCSV("src/resources/appointments.csv", doctorService, patientService);
+                    appointmentService.loadAppointmentsFromCSV("src/main/resources/appointments.csv", doctorService, patientService);
                     break;
                 default:
                     System.out.println("Invalid load option.");
