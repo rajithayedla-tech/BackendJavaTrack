@@ -6,6 +6,7 @@ import com.airtribe.meditrack.entity.enums.Specialization;
 import com.airtribe.meditrack.util.DataStore;
 
 import java.io.*;
+import java.util.Collection;
 import java.util.List;
 
 public class DoctorService implements Searchable<Doctor> {
@@ -88,4 +89,17 @@ public class DoctorService implements Searchable<Doctor> {
             System.out.println("Error loading doctors from CSV: " + e.getMessage());
         }
     }
+
+
+    public long totalDoctors() {
+        return store.getAll()
+                .stream()
+                .count();
+    }
+
+    public Collection<Doctor> getAllDoctors() {
+        return store.getAll();
+    }
+
+
 }

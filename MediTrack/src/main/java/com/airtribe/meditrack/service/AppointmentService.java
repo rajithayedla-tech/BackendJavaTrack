@@ -5,20 +5,37 @@ import com.airtribe.meditrack.entity.Doctor;
 import com.airtribe.meditrack.entity.Patient;
 import com.airtribe.meditrack.entity.enums.AppointmentStatus;
 import com.airtribe.meditrack.exception.AppointmentNotFoundException;
+import com.airtribe.meditrack.Interface.Observer;
 import com.airtribe.meditrack.util.DataStore;
 
 import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class AppointmentService {
     private final DataStore<Appointment> store = new DataStore<>();
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    private List<Observer> observers = new ArrayList<>();
+
+    public void addObserver(Observer observer) {
+        observers.add(observer);
+    }
+
+
+    private void notifyObservers(Appointment appointment) {
+        for (Observer observer : observers) {
+            observer.update(appointment);
+        }
+    }
 
     // CREATE
     public void createAppointment(String id, Doctor doctor, Patient patient, Date date) {
-        store.add(new Appointment(id, doctor, patient, date));
+        Appointment appointment = new Appointment(id, doctor, patient, date);
+        store.add(appointment);
+        notifyObservers(appointment);
     }
 
     // READ
@@ -91,5 +108,12 @@ public class AppointmentService {
             throw new RuntimeException(e);
         }
     }
+
+    public long totalAppointments() {
+        return store.getAll()
+                .stream()
+                .count();
+    }
+
 
 }
