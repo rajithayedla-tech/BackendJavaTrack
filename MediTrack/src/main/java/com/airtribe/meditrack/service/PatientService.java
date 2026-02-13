@@ -28,4 +28,27 @@ public class PatientService implements Searchable<Patient> {
         notFoundMessage();
         return null;
     }
+
+    // SEARCH by Name (Overloading)
+    public Patient searchPatient(String name) {
+        for (Patient p : store.getAll()) {
+            if (p.getName().equalsIgnoreCase(name)) {
+                return p;
+            }
+        }
+        notFoundMessage();
+        return null;
+    }
+
+    // SEARCH by Age (Overloading)
+    public Patient searchPatient(int age) {
+        for (Patient p : store.getAll()) {
+            if (p.getAge() == age) {
+                return p;
+            }
+        }
+        notFoundMessage();
+        return null;
+    }
+
 }

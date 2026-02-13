@@ -30,6 +30,25 @@ public class DoctorService implements Searchable<Doctor> {
         notFoundMessage();
         return null;
     }
+    // SEARCH by Name (Overloading)
+    public Doctor searchDoctor(String name) {
+        for (Doctor d : store.getAll()) {
+            if (d.getName().equalsIgnoreCase(name)) {
+                return d;
+            }
+        }
+        notFoundMessage();
+        return null;
+    }
+
+    // SEARCH by Specialization (Overloading)
+    public List<Doctor> searchDoctor(Specialization specialization) {
+        return store.getAll()
+                .stream()
+                .filter(d -> d.getSpecialization() == specialization)
+                .collect(Collectors.toList());
+    }
+
 
     // STREAM: filter doctors by specialization
     public List<Doctor> filterBySpecialization(Specialization specialization) {
