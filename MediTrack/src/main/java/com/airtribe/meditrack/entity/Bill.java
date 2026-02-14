@@ -1,22 +1,22 @@
 package com.airtribe.meditrack.entity;
 
 import com.airtribe.meditrack.Interface.Payable;
-import com.airtribe.meditrack.constants.Constants;
+import com.airtribe.meditrack.strategy.TaxStrategy;
 
 public class Bill implements Payable {
+
     private Doctor doctor;
+    private TaxStrategy taxStrategy;
 
-    public Bill(Doctor doctor) {
+    public Bill(Doctor doctor, TaxStrategy taxStrategy) {
         this.doctor = doctor;
-    }
-
-    public Bill() {
-
+        this.taxStrategy = taxStrategy;
     }
 
     @Override
     public double calculateTotal() {
         double baseFee = doctor.getConsultationFee();
-        return baseFee + (baseFee * Constants.TAX_RATE);
+        double tax = taxStrategy.calculateTax(baseFee);
+        return baseFee + tax;
     }
 }

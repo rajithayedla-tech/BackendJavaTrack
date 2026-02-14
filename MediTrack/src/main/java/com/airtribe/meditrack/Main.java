@@ -1,12 +1,15 @@
 package com.airtribe.meditrack;
-
 import com.airtribe.meditrack.constants.Constants;
 import com.airtribe.meditrack.entity.*;
 import com.airtribe.meditrack.entity.enums.Specialization;
 import com.airtribe.meditrack.exception.InvalidDataException;
+import com.airtribe.meditrack.factory.BillFactory;
 import com.airtribe.meditrack.service.AppointmentService;
 import com.airtribe.meditrack.service.DoctorService;
 import com.airtribe.meditrack.service.PatientService;
+import com.airtribe.meditrack.strategy.GSTTaxStrategy;
+import com.airtribe.meditrack.strategy.TaxStrategy;
+import com.airtribe.meditrack.util.AIHelper;
 import com.airtribe.meditrack.util.DateUtil;
 
 import java.util.Date;
@@ -21,7 +24,11 @@ public class Main {
         private static final DoctorService doctorService = new DoctorService();
         private static final AppointmentService appointmentService = new AppointmentService();
 
-        public static void main(String[] args) {
+        static {
+            appointmentService.addObserver(new com.airtribe.meditrack.observer.AppointmentNotifier());
+        }
+
+    public static void main(String[] args) {
 
             System.out.println(Constants.APP_NAME);
 
@@ -45,6 +52,11 @@ public class Main {
                         case 12 -> immutableBillSummary();
                         case 13 -> saveDataToCSV();
                         case 14 -> loadDataFromCSV();
+                        case 15 -> showPatientCount();
+                        case 16 -> showSystemInfo();
+                        case 17 -> showAnalytics();
+                        case 18 -> testAIRecommendation();
+                        case 19 -> testAISlots();
                         case 0 -> exitApp();
                         default -> System.out.println("Invalid option. Try again.");
                     }
@@ -72,9 +84,15 @@ public class Main {
                 12. Immutable Bill Summary
                 13. Save Data to CSV
                 14. Load Data from CSV
+                15. Show Total Patient Count
+                16. Show System Info
+                17. Analytics with Streams
+                18. AI Doctor Recommendation
+                19. AI Smart Slot Suggestion
                 0. Exit
                 """);
         }
+
 
         // ---------------- PATIENT ----------------
         private static void addPatient() {
@@ -95,7 +113,12 @@ public class Main {
             patientService.viewPatients();
         }
 
-        // ---------------- DOCTOR ----------------
+        private static void showPatientCount() {
+            System.out.println("Total Patients Created: " + Patient.getTotalPatients());
+        }
+
+
+    // ---------------- DOCTOR ----------------
         private static void addDoctor() {
             System.out.print("Doctor ID: ");
             String id = scanner.nextLine();
@@ -132,7 +155,59 @@ public class Main {
             System.out.println("Doctor added successfully.");
         }
 
-        private static void viewDoctors() {
+        private static void showAnalytics() {
+
+            System.out.println("=== SYSTEM ANALYTICS ===");
+
+            double avgFee = doctorService.averageConsultationFee();
+            long doctorCount = doctorService.totalDoctors();
+            long appointmentCount = appointmentService.totalAppointments();
+
+            System.out.println("Total Doctors: " + doctorCount);
+            System.out.println("Total Appointments: " + appointmentCount);
+            System.out.println("Average Consultation Fee: " + avgFee);
+        }
+
+            private static void testAIRecommendation() {
+
+                System.out.print("Enter your symptoms: ");
+                String symptoms = scanner.nextLine();
+
+                var recommendations = AIHelper.recommendDoctors(
+                        symptoms,
+                        doctorService.getAllDoctors()
+                );
+
+                if (recommendations.isEmpty()) {
+                    System.out.println("No suitable doctors found.");
+                    return;
+                }
+
+                System.out.println("\nAI Recommendation Results:");
+                recommendations.forEach(System.out::println);
+
+                System.out.println("\nExplanation:");
+                System.out.println(AIHelper.explainRecommendation(symptoms));
+            }
+
+        private static void testAISlots() {
+
+            System.out.print("Enter your symptoms (for urgency detection): ");
+            String symptoms = scanner.nextLine();
+
+            var slots = AIHelper.suggestSlots(symptoms);
+
+            System.out.println("\nSmart Suggested Appointment Slots:");
+
+            slots.forEach(slot ->
+                    System.out.println("→ " + slot)
+            );
+        }
+
+
+
+
+    private static void viewDoctors() {
             doctorService.viewDoctors();
         }
 
@@ -256,8 +331,8 @@ public class Main {
             if (doctor == null) {
                 throw new InvalidDataException("Doctor not found");
             }
-
-            Bill bill = new Bill(doctor);
+            TaxStrategy strategy = new GSTTaxStrategy();
+            Bill bill = BillFactory.createBill("CONSULTATION", doctor);
             double total = bill.calculateTotal();
 
             bill.printReceipt(total);
@@ -369,7 +444,17 @@ public class Main {
             }
         }
 
-        private static void exitApp() {
+        private static void showSystemInfo() {
+            Runtime runtime = Runtime.getRuntime();
+
+            System.out.println("Available Processors: " + runtime.availableProcessors());
+            System.out.println("Free Memory: " + runtime.freeMemory());
+            System.out.println("Total Memory: " + runtime.totalMemory());
+            System.out.println("Max Memory: " + runtime.maxMemory());
+        }
+
+
+    private static void exitApp() {
             System.out.println("Thank you for using MediTrack.");
             System.exit(0);
         }
