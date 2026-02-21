@@ -1,25 +1,39 @@
 package com.airtribe.lms.controller;
 
+import com.airtribe.lms.dto.CheckoutRequest;
+import com.airtribe.lms.dto.ReturnRequest;
+import com.airtribe.lms.entity.LendingRecord;
 import com.airtribe.lms.service.LendingService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/lendings")
 public class LendingController {
-    @Autowired
-    private LendingService lendingService;
 
-    @PostMapping("/checkout") public ResponseEntity<String> checkoutBook(@RequestParam String isbn, @RequestParam int patronId) {
-        return ResponseEntity.ok(lendingService.checkoutBook(isbn, patronId));
+    private final LendingService lendingService;
+
+    public LendingController(LendingService lendingService) {
+        this.lendingService = lendingService;
     }
 
-    @PostMapping("/return") public ResponseEntity<String> returnBook(@RequestParam String isbn) {
-        return ResponseEntity.ok(lendingService.returnBook(isbn));
+    // Checkout a book
+    @PostMapping("/checkout")
+    public ResponseEntity<?> checkoutBook(@RequestBody CheckoutRequest request) {
+        return lendingService.checkoutBook(request.getBookId(), request.getPatronId());
+    }
+
+    // Return a book
+    @PostMapping("/return")
+    public ResponseEntity<?> returnBook(@RequestBody ReturnRequest request) {
+        return lendingService.returnBook(request.getBookId(), request.getPatronId());
+    }
+
+    // Get all lending records
+    @GetMapping
+    public List<LendingRecord> getAllLendingRecords() {
+        return lendingService.getAllLendingRecords();
     }
 }
-

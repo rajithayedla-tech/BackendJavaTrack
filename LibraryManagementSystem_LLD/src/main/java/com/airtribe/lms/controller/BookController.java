@@ -1,39 +1,44 @@
 package com.airtribe.lms.controller;
 
 import com.airtribe.lms.entity.Book;
-import com.airtribe.lms.service.BookService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.airtribe.lms.service.LendingService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Collection;
 
 @RestController
 @RequestMapping("/books")
 public class BookController {
-    @Autowired
-    private BookService bookService;
+
+    private final LendingService lendingService;
+
+    public BookController(LendingService lendingService) {
+        this.lendingService = lendingService;
+    }
 
     @PostMapping
     public ResponseEntity<Book> addBook(@RequestBody Book book) {
-        return ResponseEntity.ok(bookService.addBook(book));
+        lendingService.registerBook(book);
+        return ResponseEntity.ok(book);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Book> updateBook(@PathVariable int id, @RequestBody Book updatedBook) {
+        Book existing = lendingService.getAllBooks().get(id);
+        if (existing == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        existing.setTitle(updatedBook.getTitle());
+        existing.setAuthor(updatedBook.getAuthor());
+        existing.setIsbn(updatedBook.getIsbn());
+        existing.setPublicationYear(updatedBook.getPublicationYear());
+        return ResponseEntity.ok(existing);
+    }
+
+    // NEW: Get all books
     @GetMapping
-    public ResponseEntity<List<Book>> getAllBooks() {
-        return ResponseEntity.ok(bookService.getAllBooks());
-    }
-
-    @GetMapping("/search") public ResponseEntity<List<Book>> searchBooks(@RequestParam String query) {
-        return ResponseEntity.ok(bookService.searchBooks(query));
-    }
-
-    @PutMapping("/{isbn}") public ResponseEntity<Book> updateBook(@PathVariable String isbn, @RequestBody Book book) {
-        return ResponseEntity.ok(bookService.updateBook(isbn, book));
-    }
-
-    @DeleteMapping("/{isbn}") public ResponseEntity<Void> deleteBook(@PathVariable String isbn) {
-        bookService.deleteBook(isbn);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Collection<Book>> getAllBooks() {
+        return ResponseEntity.ok(lendingService.getAllBooks().values());
     }
 }

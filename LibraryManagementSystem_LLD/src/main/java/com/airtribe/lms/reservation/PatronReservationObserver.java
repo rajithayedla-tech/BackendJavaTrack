@@ -1,18 +1,15 @@
 package com.airtribe.lms.reservation;
 
-import com.airtribe.lms.entity.Patron;
-
 public class PatronReservationObserver implements ReservationObserver {
-    private final Patron patron;
+    private final int patronId;
 
-    public PatronReservationObserver(Patron patron) {
-        this.patron = patron;
+    public PatronReservationObserver(int patronId) {
+        this.patronId = patronId;
     }
 
     @Override
     public void notifyAvailable(String isbn) {
-        System.out.println("Notification to Patron " + patron.getName() +
-                ": Book with ISBN " + isbn + " is now available!");
+        // For now, just log to console. Later you can send email/notification.
+        System.out.println("Patron " + patronId + " notified: Book with ISBN " + isbn + " is now available!");
     }
 }
-

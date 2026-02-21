@@ -6,21 +6,43 @@ import com.airtribe.lms.entity.Patron;
 import com.airtribe.lms.recommendation.RecommendationStrategy;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class RecommendationService {
-    private RecommendationStrategy strategy;
 
-    public void setStrategy(RecommendationStrategy strategy) {
-        this.strategy = strategy;
+    private final LendingService lendingService;
+
+    public RecommendationService(LendingService lendingService) {
+        this.lendingService = lendingService;
     }
 
-    public List<Book> getRecommendations(Patron patron, List<Book> allBooks) {
-        if (strategy == null) {
-            throw new IllegalStateException("Recommendation strategy not set.");
+    public List<Book> recommendBooks(int patronId, String strategy) {
+        Patron patron = lendingService.getAllPatrons().get(patronId);
+        if (patron == null) {
+            throw new IllegalArgumentException("Patron not found: " + patronId);
         }
-        return strategy.recommendBooks(patron, allBooks);
+
+        if ("history".equalsIgnoreCase(strategy)) {
+            Set<String> authors = patron.getBorrowingHistory().stream()
+                    .map(record -> {
+                        Book b = lendingService.getAllBooks().get(record.getBookId());
+                        return b != null ? b.getAuthor() : null;
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
+
+            return lendingService.getAllBooks().values().stream()
+                    .filter(book -> authors.contains(book.getAuthor()) && !book.isBorrowed())
+                    .collect(Collectors.toList());
+        }
+
+        return Collections.emptyList();
     }
 }
+
 

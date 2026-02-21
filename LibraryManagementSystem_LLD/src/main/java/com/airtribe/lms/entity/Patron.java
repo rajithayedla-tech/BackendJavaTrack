@@ -6,19 +6,18 @@ import java.util.List;
 
 @Data
 public class Patron {
-    private int patronId;
+    private int id;
     private String name;
-    private String contactInfo;
+    private String email;
     private List<LendingRecord> borrowingHistory = new ArrayList<>();
 
-    public Patron(int patronId, String name, String contactInfo) {
-        this.patronId = patronId;
+    public Patron(int id, String name, String email) {
+        this.id = id;
         this.name = name;
-        this.contactInfo = contactInfo;
+        this.email = email;
     }
 
     public void addBorrowingRecord(LendingRecord record) {
         borrowingHistory.add(record);
     }
 }
-
