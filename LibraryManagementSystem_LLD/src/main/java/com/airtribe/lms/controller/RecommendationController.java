@@ -8,6 +8,7 @@ import com.airtribe.lms.service.BookService;
 import com.airtribe.lms.service.PatronService;
 import com.airtribe.lms.service.RecommendationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,37 +17,18 @@ import java.util.List;
 @RequestMapping("/recommendations")
 public class RecommendationController {
 
-    @Autowired private RecommendationService recommendationService;
-    @Autowired private BookService bookService;
-    @Autowired private PatronService patronService;
+    private final RecommendationService recommendationService;
+
+    public RecommendationController(RecommendationService recommendationService) {
+        this.recommendationService = recommendationService;
+    }
 
     @GetMapping("/{patronId}")
-    public List<Book> getRecommendations(
+    public ResponseEntity<List<Book>> getRecommendations(
             @PathVariable int patronId,
-            @RequestParam String strategy,
-            @RequestParam(required = false) String genre) {
-
-        Patron patron = patronService.updatePatron(patronId, null); // Simplified: fetch patron by ID
-        if (patron == null) {
-            throw new IllegalArgumentException("Patron not found");
-        }
-
-        // Choose strategy based on query parameter
-        switch (strategy.toLowerCase()) {
-            case "genre":
-                if (genre == null) {
-                    throw new IllegalArgumentException("Genre must be provided for genre-based recommendations");
-                }
-                recommendationService.setStrategy(new GenreBasedRecommendation(genre));
-                break;
-            case "history":
-                recommendationService.setStrategy(new HistoryBasedRecommendation());
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown strategy: " + strategy);
-        }
-
-        return recommendationService.getRecommendations(patron, bookService.getAllBooks());
+            @RequestParam(defaultValue = "history") String strategy) {
+        return ResponseEntity.ok(recommendationService.recommendBooks(patronId, strategy));
     }
 }
+
 

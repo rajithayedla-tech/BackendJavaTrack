@@ -5,17 +5,18 @@ import java.time.LocalDate;
 
 @Data
 public class LendingRecord {
-    private Book book;
+    private int bookId;
+    private int patronId;
     private LocalDate checkoutDate;
     private LocalDate returnDate;
 
-    public LendingRecord(Book book, LocalDate checkoutDate) {
-        this.book = book;
+    public LendingRecord(int bookId, int patronId, LocalDate checkoutDate) {
+        this.bookId = bookId;
+        this.patronId = patronId;
         this.checkoutDate = checkoutDate;
     }
 
     public void markReturned(LocalDate returnDate) {
         this.returnDate = returnDate;
-        book.setBorrowed(false);
     }
 }

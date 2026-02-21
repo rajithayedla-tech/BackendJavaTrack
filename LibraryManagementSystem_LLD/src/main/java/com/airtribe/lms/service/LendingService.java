@@ -3,63 +3,105 @@ package com.airtribe.lms.service;
 import com.airtribe.lms.entity.Book;
 import com.airtribe.lms.entity.LendingRecord;
 import com.airtribe.lms.entity.Patron;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class LendingService {
+
+    private final Map<Integer, Book> books = new HashMap<>();
+    private final Map<Integer, Patron> patrons = new HashMap<>();
     private final List<LendingRecord> lendingRecords = new ArrayList<>();
-    private final BookService bookService;
-    private final PatronService patronService;
     private final ReservationService reservationService;
 
-    public LendingService(BookService bookService, PatronService patronService, ReservationService reservationService) {
-        this.bookService = bookService;
-        this.patronService = patronService;
-        this.reservationService = reservationService;
+
+    // Register a book
+    public void registerBook(Book book) {
+        books.put(book.getId(), book);
     }
 
-    public String checkoutBook(String isbn, int patronId) {
-        Book book = bookService.getAllBooks().stream()
-                .filter(b -> b.getIsbn().equals(isbn) && !b.isBorrowed())
-                .findFirst()
-                .orElse(null);
+    // Register a patron
+    public void registerPatron(Patron patron) {
+        patrons.put(patron.getId(), patron);
+    }
+
+    // Checkout a book
+    public ResponseEntity<?> checkoutBook(int bookId, int patronId) {
+        Book book = books.get(bookId);
+        Patron patron = patrons.get(patronId);
 
         if (book == null) {
-            return "Book not available.";
+            return ResponseEntity.badRequest().body("Book not found");
         }
-
-        // Simplified: In a real system, fetch Patron by ID from PatronService
-        Patron patron = patronService.getBorrowingHistory(patronId) != null ? new Patron(patronId, "Unknown", "N/A") : null;
-
         if (patron == null) {
-            return "Patron not found.";
+            return ResponseEntity.badRequest().body("Patron not found");
+        }
+        if (book.isBorrowed()) {
+            return ResponseEntity.badRequest().body("Book already borrowed");
         }
 
         book.setBorrowed(true);
-        LendingRecord record = new LendingRecord(book, LocalDate.now());
+        LendingRecord record = new LendingRecord(bookId, patronId, LocalDate.now());
         lendingRecords.add(record);
         patron.addBorrowingRecord(record);
 
-        return "Book checked out successfully.";
+        return ResponseEntity.ok(record);
     }
 
-    public String returnBook(String isbn) {
-        for (LendingRecord record : lendingRecords) {
-            if (record.getBook().getIsbn().equals(isbn) && record.getReturnDate() == null) {
-                record.markReturned(LocalDate.now());
-                // Notify reservation system that the book is now available
-                reservationService.notifyAvailability(record.getBook());
-                return "Book returned successfully.";
-            }
+    // Return a book
+    public ResponseEntity<?> returnBook(int bookId, int patronId) {
+        Book book = books.get(bookId);
+        Patron patron = patrons.get(patronId);
+
+        if (book == null) {
+            return ResponseEntity.badRequest().body("Book not found");
         }
-        return "Book not found in lending records.";
+        if (patron == null) {
+            return ResponseEntity.badRequest().body("Patron not found");
+        }
+        if (!book.isBorrowed()) {
+            return ResponseEntity.badRequest().body("Book is not currently borrowed");
+        }
+
+        book.setBorrowed(false);
+
+        Optional<LendingRecord> recordOpt = lendingRecords.stream()
+                .filter(r -> r.getBookId() == bookId && r.getPatronId() == patronId && r.getReturnDate() == null)
+                .findFirst();
+
+        if (recordOpt.isPresent()) {
+            LendingRecord record = recordOpt.get();
+            record.setReturnDate(LocalDate.now());
+
+            // 🔔 Notify ReservationService when book becomes available
+            reservationService.notifyAvailability(book);
+
+            return ResponseEntity.ok(record);
+        } else {
+            return ResponseEntity.badRequest().body("No active lending record found for this patron and book");
+        }
     }
 
+
+    // Get all lending records
     public List<LendingRecord> getAllLendingRecords() {
         return lendingRecords;
+    }
+
+    // Get all patrons
+    public Map<Integer, Patron> getAllPatrons() {
+        return patrons;
+    }
+
+    // Get all books
+    public Map<Integer, Book> getAllBooks() {
+        return books;
+    }
+
+    public LendingService(ReservationService reservationService) {
+        this.reservationService = reservationService;
     }
 }

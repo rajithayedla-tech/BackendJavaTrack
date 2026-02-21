@@ -22,7 +22,7 @@ public class Library {
     }
 
     public void updatePatron(Patron patron) {
-        patrons.replaceAll(p -> p.getPatronId() == patron.getPatronId() ? patron : p);
+        patrons.replaceAll(p -> p.getId() == patron.getId() ? patron : p);
     }
 }
 
