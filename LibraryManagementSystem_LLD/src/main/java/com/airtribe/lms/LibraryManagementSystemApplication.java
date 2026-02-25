@@ -1,13 +1,11 @@
-package org.example.librarymanagementsystem_lld;
+package com.airtribe.lms;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class LibraryManagementSystemLldApplication {
-
+public class LibraryManagementSystemApplication {
     public static void main(String[] args) {
-        SpringApplication.run(LibraryManagementSystemLldApplication.class, args);
+        SpringApplication.run(LibraryManagementSystemApplication.class, args);
     }
-
 }
