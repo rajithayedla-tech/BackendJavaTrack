@@ -1,0 +1,69 @@
+{
+  "info": {
+    "name": "Smart Parking Lot API",
+    "_postman_id": "12345-abcde-67890-fghij",
+    "description": "Collection to test Parking Lot REST APIs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Check-in Vehicle",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"licensePlate\": \"TS09AB1234\",\n  \"type\": \"CAR\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/parking/checkin",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "parking", "checkin"]
+        }
+      }
+    },
+    {
+      "name": "Check-out Vehicle",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "http://localhost:8080/api/parking/checkout/{{transactionId}}",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "parking", "checkout", "{{transactionId}}"]
+        }
+      }
+    },
+    {
+      "name": "Get Available Spots",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/api/parking/spots/available",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "parking", "spots", "available"]
+        }
+      }
+    },
+    {
+      "name": "List All Vehicles",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/api/vehicles",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "vehicles"]
+        }
+      }
+    }
+  ]
+}
