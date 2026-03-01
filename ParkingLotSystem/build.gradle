@@ -1,8 +1,10 @@
 plugins {
     id 'java'
+    id 'org.springframework.boot' version '3.2.3'
+    id 'io.spring.dependency-management' version '1.1.7'
 }
 
-group = 'org.example'
+group = 'org.airtribe'
 version = '1.0-SNAPSHOT'
 
 repositories {
@@ -10,9 +12,23 @@ repositories {
 }
 
 dependencies {
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    // Core Spring Boot starter
+    implementation 'org.springframework.boot:spring-boot-starter'
+
+    // Web + REST controllers
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // JPA + Hibernate
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // H2 Database (in-memory)
+    runtimeOnly 'com.h2database:h2'
+
+    // MySQL Connector (optional, if you want to switch from H2 to MySQL later)
+    runtimeOnly 'com.mysql:mysql-connector-j'
+
+    // Testing
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
 test {
