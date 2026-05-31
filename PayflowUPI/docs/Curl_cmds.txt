@@ -1,0 +1,106 @@
+PS C:\Users\nirvi\IdeaProjects\BackendJavaTrackRepo\PayflowUPI> Invoke-RestMethod -Uri "http://localhost:8080/users" `
+>>   -Method POST `
+>>   -Body '{"name":"Rajitha","upiId":"rajitha@okicici","balance":5000,"phoneNumber": "9876543210"}' `
+>>   -ContentType "application/json"
+
+
+balance     : 5000.0
+name        : Rajitha
+phoneNumber : 9876543210
+upiId       : rajitha@okicici
+userId      : 1
+
+
+
+PS C:\Users\nirvi\IdeaProjects\BackendJavaTrackRepo\PayflowUPI> Invoke-RestMethod -Uri "http://localhost:8080/users" `
+>>   -Method POST `                                                                                                                                                                 
+>>   -Body '{"name":"Priya","upiId":"priya@okaxis","balance":3000,"phoneNumber": "2123443433"}' `                                                                                   
+>>   -ContentType "application/json"                                                                                                                                                
+
+
+balance     : 3000.0
+name        : Priya
+phoneNumber : 2123443433
+upiId       : priya@okaxis
+userId      : 2
+
+
+
+PS C:\Users\nirvi\IdeaProjects\BackendJavaTrackRepo\PayflowUPI> Invoke-RestMethod -Uri "http://localhost:8080/users" -Method GET
+
+
+balance     : 5000.0
+name        : Rajitha
+phoneNumber : 9876543210
+upiId       : rajitha@okicici
+userId      : 1
+
+balance     : 3000.0
+name        : Priya
+phoneNumber : 2123443433
+upiId       : priya@okaxis
+userId      : 2
+
+
+
+PS C:\Users\nirvi\IdeaProjects\BackendJavaTrackRepo\PayflowUPI> Invoke-RestMethod -Uri "http://localhost:8080/users/1" -Method GET  
+
+
+balance     : 5000.0
+name        : Rajitha
+phoneNumber : 9876543210
+upiId       : rajitha@okicici
+userId      : 1
+
+
+
+PS C:\Users\nirvi\IdeaProjects\BackendJavaTrackRepo\PayflowUPI> Invoke-RestMethod -Uri "http://localhost:8080/users/upi/rajitha@okicici" -Method GET
+
+
+balance     : 5000.0
+name        : Rajitha
+phoneNumber : 9876543210
+upiId       : rajitha@okicici
+userId      : 1
+
+
+
+PS C:\Users\nirvi\IdeaProjects\BackendJavaTrackRepo\PayflowUPI> Invoke-RestMethod -Uri "http://localhost:8080/users/balance/3000" -Method GET
+
+
+balance     : 5000.0
+name        : Rajitha
+phoneNumber : 9876543210
+upiId       : rajitha@okicici
+userId      : 1
+
+
+
+PS C:\Users\nirvi\IdeaProjects\BackendJavaTrackRepo\PayflowUPI> Invoke-RestMethod -Uri "http://localhost:8080/transactions" `
+>>   -Method POST `                                                                                                                                                                 
+>>   -Body '{"senderUpiId":"rajitha@okicici","receiverUpiId":"priya@okaxis","amount":1000, "note":"Dinner Payment"}' `                                                              
+>>   -ContentType "application/json"                                                                                                                                                
+
+
+amount        : 1000.0
+note          : Dinner Payment
+receiverUpiId : priya@okaxis
+senderUpiId   : rajitha@okicici
+transactionId : 1
+
+
+
+PS C:\Users\nirvi\IdeaProjects\BackendJavaTrackRepo\PayflowUPI> Invoke-RestMethod -Uri "http://localhost:8080/users" -Method GET
+
+
+balance     : 4000.0
+name        : Rajitha
+phoneNumber : 9876543210
+upiId       : rajitha@okicici
+userId      : 1
+
+balance     : 4000.0
+name        : Priya
+phoneNumber : 2123443433
+upiId       : priya@okaxis
+userId      : 2
